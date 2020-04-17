@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(findpoint VERSION 0.1.0)
 
-include(CTest)
-enable_testing()
+find_package(OpenCV 3.4.10 REQUIRED)
 
-add_executable(findpoint main.cpp)
+aux_source_directory(forest SRC_LIST)
+include_directories(forest)
 
-set(CPACK_PROJECT_NAME ${PROJECT_NAME})
-set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
-include(CPack)
+add_executable(findpoint main.cpp ${SRC_LIST})
+
+target_link_libraries(findpoint ${OpenCV_LIBS} )
