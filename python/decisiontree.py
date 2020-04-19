@@ -1,12 +1,21 @@
+# -*- coding: utf-8 -*-
 
-
-# 构造树
-# dataset 输入的数据集
-# classes 数据集中数据对应的类型
-# feature_names 数据集中数据相应的特征名称
-
-def create_tree(self,dataset,classes,feature_names):
-    pass
+from python.decisiontreeclassifier import DecisionTreeClassifier
 
 if __name__ == "__main__":
+    lense_labels = ['age', 'prescript', 'astigmatic', 'tearRate']
+    X = []
+    Y = []
+    with open('lenses.txt', 'r') as f:
+        for line in f:
+            comps = line.strip().split('\t')
+            X.append(comps[: -1])
+            Y.append(comps[-1])
     print("decision tree")
+    clf = DecisionTreeClassifier()
+    clf.create_tree(X, Y, lense_labels)
+    print(clf.tree);
+
+    # 使用构建好的决策树进行分类
+    # 递归查找树
+    clf.classify()
