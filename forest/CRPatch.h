@@ -34,6 +34,7 @@ static HoG hog;
 
 class CRPatch {
 public:
+	// pRNG是一个随机数,patch的宽和高, // TODO step.01_01 num_l是?? vlPatches是保存PatchFeature的set ,num_l初始设定了这个容器的大小
 	CRPatch(CvRNG* pRNG, int w, int h, int num_l) : cvRNG(pRNG), width(w), height(h) { vLPatches.resize(num_l);}
 
 	// Extract patches from image
@@ -53,7 +54,7 @@ public:
 	static void minfilt(IplImage *src, unsigned int width);
 	static void minfilt(IplImage *src, IplImage *dst, unsigned int width);
 
-	std::vector<std::vector<PatchFeature> > vLPatches;
+	std::vector<std::vector<PatchFeature> > vLPatches; //patch的特征集合
 private:
 	CvRNG *cvRNG;
 	int width;

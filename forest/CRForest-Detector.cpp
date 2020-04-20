@@ -81,11 +81,11 @@ int p_height;
 string impath;
 // File with names of images
 string imfiles;
-// Extract features
+// Extract features (1 true)
 bool xtrFeature;
 // Scales
 vector<float> scales;
-// Ratio
+// Ratio 比率
 vector<float> ratios;
 // Output path
 string outpath;
@@ -275,14 +275,16 @@ void loadImFile(std::vector<string>& vFilenames) {
 }
 
 // load positive training image filenames
+// TODO 训练样本的数据实例 example: pos0.png 0 0 74 36 37 18
 void loadTrainPosFile(std::vector<string>& vFilenames, std::vector<CvRect>& vBBox, std::vector<std::vector<CvPoint> >& vCenter) {
 
 	unsigned int size, numop; 
+	// TODO STEP.02_01_01 读取训练用的姿态文件
 	ifstream in(trainposfiles.c_str());
 
 	if(in.is_open()) {
-		in >> size;
-		in >> numop;
+		in >> size; // trainposfiles 训练样本的样本大小
+		in >> numop; // TODO numop在样本的实际含义是什么?? 质心是向量的维度,初始为2,即二维向量
 		cout << "Load Train Pos Examples: " << size << " - " << numop << endl;
 
 		vFilenames.resize(size);
@@ -291,13 +293,13 @@ void loadTrainPosFile(std::vector<string>& vFilenames, std::vector<CvRect>& vBBo
 
 		for(unsigned int i=0; i<size; ++i) {
 			// Read filename
-			in >> vFilenames[i];
+			in >> vFilenames[i]; // column[0]
 
 			// Read bounding box
-			in >> vBBox[i].x; in >> vBBox[i].y; 
-			in >> vBBox[i].width;
+			in >> vBBox[i].x; /*column[1]*/in >> vBBox[i].y; /*column[2]*/
+			in >> vBBox[i].width; /*column[3]*/
 			vBBox[i].width -= vBBox[i].x; 
-			in >> vBBox[i].height;
+			in >> vBBox[i].height;/*column[4]*/
 			vBBox[i].height -= vBBox[i].y;
 
 			if(vBBox[i].width<p_width || vBBox[i].height<p_height) {
@@ -307,10 +309,10 @@ void loadTrainPosFile(std::vector<string>& vFilenames, std::vector<CvRect>& vBBo
 			}
 
 			// Read center points
-			vCenter[i].resize(numop);
+			vCenter[i].resize(numop); //质心向量的大小,初始赋值2,即为二维向量,2D图片
 			for(unsigned int c=0; c<numop; ++c) {			
-				in >> vCenter[i][c].x;
-				in >> vCenter[i][c].y;
+				in >> vCenter[i][c].x;/*column[5]*/
+				in >> vCenter[i][c].y;/*column[6]*/
 			}				
 		}
 
@@ -436,12 +438,16 @@ void detect(CRForestDetector& crDetect) {
 
 // Extract patches from training data
 void extract_Patches(CRPatch& Train, CvRNG* pRNG) {
+
+	// 保存了所有样本
 		
 	vector<string> vFilenames;
 	vector<CvRect> vBBox;
 	vector<vector<CvPoint> > vCenter;
 
 	// load positive file list
+	// 局部作用域函数调用时,变量名问题
+	// TODO STEP.02_01 加载训练用的姿态训练文件(训练样本是提前准备好的)
 	loadTrainPosFile(vFilenames,  vBBox, vCenter);
 
 	// load postive images and extract patches
@@ -527,12 +533,14 @@ void run_detect() {
 // Init and start training
 void run_train() {
 	// Init forest with number of trees
+	// 初始化,分配内存
 	CRForest crForest( ntrees ); 
 
 	// Init random generator
 	time_t t = time(NULL);
 	int seed = (int)t;
 
+	// cvRNG 随机生成的整数
 	CvRNG cvRNG(seed);
 						
 	// Create directory
@@ -543,9 +551,15 @@ void run_train() {
 	system( execstr.c_str() );
 
 	// Init training data
+	// cvRNG 是一个随机的整数
+	// patch 的长和宽
+	// num_l 设置patch特征集合的大小
+	// TODO STEP.01 初始化patch 分配内存和这是patch的大小
 	CRPatch Train(&cvRNG, p_width, p_height, 2); 
 			
 	// Extract training patches
+	// Train : 
+	// TODO STEP.02 抓取姿态
 	extract_Patches(Train, &cvRNG); 
 
 	// Train forest
